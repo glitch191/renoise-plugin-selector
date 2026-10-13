@@ -2,9 +2,8 @@
   renoise-plugin-selector
 
   Adds an "Instrument Box:Load Plugin" context menu that lists the
-  installed VST3 and VST2 instrument plugins (favorites first, then one
-  submenu per vendor), and loads the chosen plugin into the selected
-  instrument slot.
+  installed VST3 and VST2 instrument plugins in one list ("Vendor - Plugin"),
+  and loads the chosen plugin into the selected instrument slot.
 ]]
 
 local grouping = require("grouping")
@@ -98,8 +97,8 @@ local function write_dump()
   add("API version: " .. tostring(renoise.API_VERSION))
   add("Date: " .. os.date("%Y-%m-%d %H:%M:%S"))
   add(("Plugins reported by available_plugin_infos: %d"):format(#infos))
-  add(("VST/VST3 instruments listed: %d, favorites: %d, skipped: %d"):format(
-    layout.plugin_count, #layout.favorites, #layout.skipped))
+  add(("VST/VST3 instruments listed: %d, skipped: %d"):format(
+    layout.plugin_count, #layout.skipped))
   add(("Last menu build: %d entries in %.3f s"):format(#last_entries, last_build_seconds))
   add("")
 
@@ -116,12 +115,6 @@ local function write_dump()
   add("")
 
   add("== Computed grouping ==")
-  if #layout.favorites > 0 then
-    add("Favorites")
-    for _, item in ipairs(layout.favorites) do
-      add(("  %s  [%s]  %s"):format(item.label, item.format, item.path))
-    end
-  end
   for _, section in ipairs(layout.sections) do
     add(section.name)
     for _, item in ipairs(section.items) do

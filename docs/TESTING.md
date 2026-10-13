@@ -22,8 +22,7 @@ tools* is on).
 
 ## 3. Menu layout
 
-1. Open **Load Plugin**. Expected: favorite plugins first, a separator, then
-   every other plugin as `Vendor - Plugin`, sorted by vendor (uppercase
+1. Open **Load Plugin**. Expected: every plugin as `Vendor - Plugin`, sorted by vendor (uppercase
    names before lowercase ones), `Unknown - ...` last, then a separator and
    **Dump Plugin Info**.
 2. Pick a few plugins and compare their vendor with the left pane of the
@@ -40,13 +39,10 @@ tools* is on).
 3. If you have a broken or missing plugin, choosing it shows an error
    message instead of failing silently.
 
-## 5. Favorites and rebuild
+## 5. Rebuild
 
-1. In the Plugin tab, mark one instrument as favorite.
-2. Create a new song (**File > New Song**). Right-click the Instrument Box:
-   the plugin now appears at the top of **Load Plugin**.
-3. Remove the favorite, create a new song again: it is gone.
-4. Open the menu several times after several new songs: no duplicated
+1. Create a new song (**File > New Song**), then open another song.
+2. Open the menu several times after several new songs: no duplicated
    entries.
 
 ## 6. Diagnostic

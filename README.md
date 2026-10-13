@@ -2,8 +2,8 @@
 
 A Renoise tool that adds a **Load Plugin** menu to the Instrument Box context
 menu. It lists all your VST3 and VST2 instrument plugins in a single list,
-favorites first, and loads the chosen plugin into the selected instrument slot in
-one click.
+as `Vendor - Plugin`, and loads the chosen plugin into the selected
+instrument slot in one click.
 
 <!-- ![The Load Plugin menu in the Instrument Box context menu](docs/screenshots/context-menu.png) -->
 <!-- *The Load Plugin menu, opened with a right-click in the Instrument Box.* -->
@@ -50,9 +50,6 @@ and open **Load Plugin**:
 
 ```
 Load Plugin
-  Vendor - Favorite plugin
-  Vendor - Favorite plugin
-  ------------------------
   Vendor - Plugin
   Vendor - Plugin
   ...
@@ -63,8 +60,9 @@ Load Plugin
 
 - Everything is in the first submenu: one click on **Load Plugin**, one
   click on the plugin.
-- Favorite plugins come first, then a separator, then all other plugins.
-  Favorites are not repeated in the main list.
+- Favorites have no section of their own: Renoise already lists them in its
+  **Favorite Plugin Instruments** item of the same context menu. They appear
+  in the list at their normal place.
 - Each entry reads `Vendor - Plugin`. VST and VST3 plugins are mixed. When a
   plugin exists in both formats, the format is shown: `Vendor - Plugin (VST)`,
   `Vendor - Plugin (VST3)`.
@@ -90,11 +88,9 @@ If Renoise cannot load the plugin, an error message is shown.
   suffix.
 - **Long list.** All plugins are in one submenu, so with hundreds of plugins
   the list is long.
-- **Favorites** come from the API's `is_favorite` field, labelled with
-  `favorite_name`.
 - **Menu updates.** The menu is rebuilt when the tool loads and whenever a
   song is created or opened. Renoise does not notify tools about a plugin
-  rescan, so after a rescan or a favorite change, create or open a song to
+  rescan, so after a rescan, create or open a song to
   refresh the menu.
 
 ## Troubleshooting

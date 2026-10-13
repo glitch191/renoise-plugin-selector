@@ -5,9 +5,10 @@
   renoise.InstrumentPluginProperties.available_plugin_infos into a single
   flat menu:
 
-    Load Plugin > Vendor - Plugin   (favorites first)
-                  ---------------
-                  Vendor - Plugin   (all other plugins, VST and VST3)
+    Load Plugin > Vendor - Plugin   (all plugins, VST and VST3)
+
+  Favorites are not listed separately: Renoise already offers them in its
+  own "Favorite Plugin Instruments" menu.
 
   Kept separate from main.lua so it can be tested outside of Renoise.
 
@@ -90,12 +91,6 @@ function M.is_unknown_vendor(vendor)
   return UNKNOWN_VENDOR_NAMES[trim(vendor or ""):lower()] == true
 end
 
--- The API documents is_favorite and is_bridged as strings, so accept
--- both booleans and their string or numeric forms.
-function M.truthy(value)
-  return value == true or value == "true" or value == 1 or value == "1"
-end
-
 local function compare_items(a, b)
   if a.label ~= b.label then
     return a.label < b.label
@@ -140,7 +135,6 @@ end
 
   Returns a table:
     {
-      favorites = { item, ... },
       sections = {                       -- vendors sorted, Unknown last
         { name = "Vendor", items = { item, ... } }, ...
       },
@@ -148,12 +142,10 @@ end
       plugin_count = <number of VST/VST3 instruments listed>,
     }
   Each item is { label = <plugin label>, section = <vendor label>,
-  path = <original path>, format = "VST" | "VST3", favorite = <boolean>,
-  name = <raw name> }. Favorites are listed in both favorites and their
-  vendor section; menu_entries shows them only once.
+  path = <original path>, format = "VST" | "VST3", name = <raw name> }.
 ]]
 function M.build(infos)
-  local result = { favorites = {}, sections = {}, skipped = {}, plugin_count = 0 }
+  local result = { sections = {}, skipped = {}, plugin_count = 0 }
   local by_vendor = {}
   local unknown = nil
 
@@ -183,31 +175,14 @@ function M.build(infos)
         end
       end
 
-      local favorite = M.truthy(info.is_favorite)
       section.items[#section.items + 1] = {
         label = M.sanitize(plugin_name),
         section = section.name,
         path = info.path,
         format = format,
-        favorite = favorite,
         name = tostring(info.name or ""),
       }
       result.plugin_count = result.plugin_count + 1
-
-      if favorite then
-        local favorite_label = info.favorite_name
-        if type(favorite_label) ~= "string" or trim(favorite_label) == "" then
-          favorite_label = plugin_name
-        end
-        result.favorites[#result.favorites + 1] = {
-          label = M.sanitize(favorite_label),
-          section = section.name,
-          path = info.path,
-          format = format,
-          favorite = true,
-          name = tostring(info.name or ""),
-        }
-      end
     end
   end
 
@@ -221,15 +196,6 @@ function M.build(infos)
   for _, section in ipairs(result.sections) do
     table.sort(section.items, compare_items)
   end
-  local function display(item)
-    return item.section .. " - " .. item.label
-  end
-  table.sort(result.favorites, function(a, b)
-    if display(a) ~= display(b) then
-      return display(a) < display(b)
-    end
-    return compare_items(a, b)
-  end)
 
   return result
 end
@@ -238,21 +204,14 @@ end
   Turn a layout into the ordered list of menu entries, all directly under
   the root:
     { { name = "<root>:Vendor - Plugin", path = "...", label = "..." }, ... }
-  Favorites come first. The first entry after them carries a separator
-  ("--- " prefix). Labels are kept unique ignoring case; a plugin present
+  Labels are kept unique ignoring case; a plugin present
   in VST and VST3 under the same label shows its format.
 ]]
 function M.menu_entries(layout, root, reserved_names)
   local flat = {}
-  for _, item in ipairs(layout.favorites) do
-    flat[#flat + 1] = { label = item.section .. " - " .. item.label, format = item.format, path = item.path }
-  end
-  local favorite_count = #flat
   for _, section in ipairs(layout.sections) do
     for _, item in ipairs(section.items) do
-      if not item.favorite then
-        flat[#flat + 1] = { label = item.section .. " - " .. item.label, format = item.format, path = item.path }
-      end
+      flat[#flat + 1] = { label = item.section .. " - " .. item.label, format = item.format, path = item.path }
     end
   end
 
@@ -264,7 +223,7 @@ function M.menu_entries(layout, root, reserved_names)
   end
 
   local entries = {}
-  for index, item in ipairs(flat) do
+  for _, item in ipairs(flat) do
     local label = item.label
     local n = 1
     while used[label:lower()] do
@@ -272,11 +231,7 @@ function M.menu_entries(layout, root, reserved_names)
       label = item.label .. " (" .. n .. ")"
     end
     used[label:lower()] = true
-    local name = root .. ":" .. label
-    if index == favorite_count + 1 and favorite_count > 0 then
-      name = "--- " .. name
-    end
-    entries[#entries + 1] = { name = name, path = item.path, label = label }
+    entries[#entries + 1] = { name = root .. ":" .. label, path = item.path, label = label }
   end
   return entries
 end

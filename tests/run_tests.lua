@@ -77,9 +77,6 @@ eq(grouping.format_of("Audio/Generators/LADSPA/x"), nil, "other format skipped")
 eq(grouping.format_of("Audio/Generators/AU/VST3"), nil, "plugin id is not a format")
 eq(grouping.format_of(nil), nil, "nil path")
 
-check(grouping.truthy(true) and grouping.truthy("true") and not grouping.truthy(false)
-  and not grouping.truthy("false") and not grouping.truthy(nil), "truthy")
-
 --------------------------------------------------------------------------------
 print("-- grouping and order")
 
@@ -116,9 +113,9 @@ local entries = grouping.menu_entries(layout, ROOT, { "Dump Plugin Info" })
 local list = names(entries)
 eq(table.concat(list, "\n"), table.concat({
   ROOT .. ":Bridgeco - Old Synth",
-  ROOT .. ":Slash-Vendor - Odd-Name",
-  "--- " .. ROOT .. ":Dreamfake Co., Ltd. - Voice Studio",
+  ROOT .. ":Dreamfake Co., Ltd. - Voice Studio",
   ROOT .. ":FakeAudio - Big Synth",
+  ROOT .. ":Slash-Vendor - Odd-Name",
   ROOT .. ":Wavesmith - Codex Pad",
   ROOT .. ":Wavesmith - Electric Keys (VST)",
   ROOT .. ":Wavesmith - Electric Keys (VST3)",
@@ -129,7 +126,7 @@ eq(table.concat(list, "\n"), table.concat({
   ROOT .. ":Unknown - Dash Vendor Synth",
   ROOT .. ":Unknown - Mystery VST3",
   ROOT .. ":Unknown - NoVendorSynth",
-}, "\n"), "flat list: favorites first, separator, then Vendor - Plugin, favorites not repeated")
+}, "\n"), "one flat list of Vendor - Plugin; favorites in their normal place, no separator")
 
 for _, e in ipairs(entries) do
   if e.label == "Slash-Vendor - Odd-Name" then
@@ -137,17 +134,10 @@ for _, e in ipairs(entries) do
   end
 end
 
-local favorite_only = grouping.menu_entries(grouping.build({
-  info("Audio/Generators/VST3/F1", "Vendor: Same", { is_favorite = true }),
-  info("Audio/Generators/VST/F2", "Vendor: Same", { is_favorite = true }),
-}), ROOT)
-eq(favorite_only[1].name, ROOT .. ":Vendor - Same (VST)", "favorite duplicate shows VST")
-eq(favorite_only[2].name, ROOT .. ":Vendor - Same (VST3)", "favorite duplicate shows VST3")
-
-local no_favorites = grouping.menu_entries(grouping.build({
-  info("Audio/Generators/VST/H1", "Vendor: Plain"),
-}), ROOT)
-eq(no_favorites[1].name, ROOT .. ":Vendor - Plain", "no separator without favorites")
+local reserved = grouping.menu_entries(grouping.build({
+  info("Audio/Generators/VST/H1", "Dump Plugin: Info"),
+}), ROOT, { "Dump Plugin - Info" })
+eq(reserved[1].name, ROOT .. ":Dump Plugin - Info (2)", "reserved names are not reused")
 
 eq(#grouping.menu_entries(grouping.build({}), ROOT), 0, "empty list")
 
@@ -161,7 +151,7 @@ local function fake_infos(count)
     list[#list + 1] = info(
       ("Audio/Generators/%s/FakeId%04d"):format(format, i),
       ("Fake Vendor %02d: Fake Synth %04d"):format(i % 60, i),
-      { is_favorite = (i % 50 == 0) })
+      { is_favorite = (i % 50 == 0) }) -- ignored by the menu
   end
   return list
 end
@@ -173,14 +163,15 @@ env.fire("tool_finished_loading_observable")
 local elapsed = os.clock() - started
 print(("   500 fake plugins: %d menu entries built in %.3f s"):format(env.entry_count(), elapsed))
 check(elapsed < 1.0, "menu built in less than one second")
-eq(env.entry_count(), 500 + 1, "500 plugins (favorites listed once) + dump entry")
+eq(env.entry_count(), 500 + 1, "500 plugins + dump entry")
 local order = env.entry_names()
 eq(order[#order], "--- " .. ROOT .. ":Dump Plugin Info", "dump entry last")
-for i = 1, 10 do
-  check(env.entries[order[i]] and order[i]:find(" - Fake Synth 0", 1, true) and
-    tonumber(order[i]:match("(%d+)$")) % 50 == 0, "favorites first in the menu " .. i)
+eq(order[1], ROOT .. ":Fake Vendor 00 - Fake Synth 0060", "sorted by vendor then name")
+local separators = 0
+for _, name in ipairs(order) do
+  if name:find("--- ", 1, true) == 1 then separators = separators + 1 end
 end
-check(order[11]:find("--- ", 1, true) == 1, "separator after favorites")
+eq(separators, 1, "only the dump entry has a separator")
 
 env.fire("app_new_document_observable")
 env.fire("app_new_document_observable")
