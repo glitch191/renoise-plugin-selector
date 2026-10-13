@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <RenoiseScriptingTool doc_version="0">
   <ApiVersion>6.2</ApiVersion>
-  <Id>com.github.YOURNAME.RenoisePluginSelector</Id>
+  <Id>com.YOURNAME.RenoisePluginSelector</Id>
   <Version>1.0</Version>
   <Author>YOUR NAME</Author>
   <Name>renoise-plugin-selector</Name>
