@@ -66,6 +66,20 @@ local function load_plugin(path, label)
       ("Load Plugin: Renoise could not load '%s'.\n\nPlugin path: %s\n\n" ..
        "The plugin may have been removed, or failed to initialize. " ..
        "Try rescanning plugins in Renoise's preferences."):format(label, path))
+  else
+    -- Open the plugin's editor window. Renoise shows a generic parameter
+    -- editor for plugins without their own GUI.
+    local opened, open_err = pcall(function()
+      local device = song.selected_instrument.plugin_properties.plugin_device
+      if device then
+        device.external_editor_visible = true
+      end
+    end)
+    if not opened then
+      renoise.app():show_warning(
+        ("Load Plugin: '%s' was loaded, but its editor could not be opened.\n\n%s"):format(
+          label, tostring(open_err)))
+    end
   end
 end
 

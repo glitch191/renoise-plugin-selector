@@ -33,7 +33,7 @@ tools* is on).
 ## 4. Loading
 
 1. Select an empty slot and choose a plugin: it loads and its editor
-   behaves as usual.
+   window opens right away.
 2. Select a slot that holds samples or another plugin and choose a plugin:
    the slot is replaced without any confirmation.
 3. If you have a broken or missing plugin, choosing it shows an error

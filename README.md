@@ -74,7 +74,8 @@ Load Plugin
 
 **Loading replaces the selected instrument.** The slot is cleared and the
 plugin is loaded, whether the slot was empty or not, without confirmation.
-If Renoise cannot load the plugin, an error message is shown.
+The plugin's editor window then opens. If Renoise cannot load the plugin, an
+error message is shown.
 
 ## Known limitations
 

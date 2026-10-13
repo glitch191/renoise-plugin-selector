@@ -192,6 +192,8 @@ target.invoke()
 eq(env.instrument.cleared, 1, "instrument cleared before loading")
 eq(env.instrument.loaded_path, "Audio/Generators/VST/FakeId0001", "plugin loaded with the original path")
 eq(#env.errors, 0, "no error on successful load")
+eq(env.instrument.device.external_editor_visible, true, "plugin editor opened after loading")
+eq(#env.warnings, 0, "no warning on successful load")
 
 env.instrument.load_result = false
 target.invoke()

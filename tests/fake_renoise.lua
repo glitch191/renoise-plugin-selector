@@ -31,12 +31,17 @@ function M.install(infos)
     __index = function(_, key)
       if key == "available_plugin_infos" then
         return current_infos
+      elseif key == "plugin_device" then
+        return instrument.device
       elseif key == "load_plugin" then
         return function(_, path)
           if instrument.load_result == "raise" then
             error("fake load failure")
           end
           instrument.loaded_path = path
+          if instrument.load_result == true then
+            instrument.device = { external_editor_visible = false }
+          end
           return instrument.load_result
         end
       end
