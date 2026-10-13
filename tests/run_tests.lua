@@ -109,54 +109,47 @@ local section_names = {}
 for _, s in ipairs(layout.sections) do section_names[#section_names + 1] = s.name end
 eq(table.concat(section_names, "|"),
   "Bridgeco|Dreamfake Co., Ltd.|FakeAudio|Slash-Vendor|Wavesmith|fakeaudio|retro-fake-vst|Unknown",
-  "vendors exact, character-code order, VST and VST3 mixed, Unknown last")
-
-local unknown = layout.sections[#layout.sections]
-eq(#unknown.items, 3, "'-', 'Unknown Vendor' and missing vendor go to Unknown")
-
-local wavesmith = layout.sections[5]
-local labels = {}
-for _, it in ipairs(wavesmith.items) do labels[#labels + 1] = it.label end
-eq(table.concat(labels, "|"),
-  "Codex Pad|Electric Keys (VST)|Electric Keys (VST3)|Twin|Twin (2)",
-  "items sorted, VST/VST3 duplicates show the format, same-format clash gets a counter")
+  "vendors exact, character-code order, Unknown last")
+eq(#layout.sections[#layout.sections].items, 3, "'-', 'Unknown Vendor' and missing vendor go to Unknown")
 
 local entries = grouping.menu_entries(layout, ROOT, { "Dump Plugin Info" })
 local list = names(entries)
-check(index_of(list, ROOT .. ":Odd-Name") == 1, "favorite directly under the root, first")
-check(index_of(list, ROOT .. ":Old Synth") == 2, "bridged favorite kept, second")
-check(index_of(list, ROOT .. ":Wavesmith:Electric Keys (VST3)") ~= nil, "vendor submenu entry")
-check(index_of(list, ROOT .. ":Slash-Vendor:Odd-Name") ~= nil, "sanitized vendor and name")
-check(index_of(list, ROOT .. ":Bridgeco:Old Synth") ~= nil, "favorite also listed under its vendor")
+eq(table.concat(list, "\n"), table.concat({
+  ROOT .. ":Bridgeco - Old Synth",
+  ROOT .. ":Slash-Vendor - Odd-Name",
+  "--- " .. ROOT .. ":Dreamfake Co., Ltd. - Voice Studio",
+  ROOT .. ":FakeAudio - Big Synth",
+  ROOT .. ":Wavesmith - Codex Pad",
+  ROOT .. ":Wavesmith - Electric Keys (VST)",
+  ROOT .. ":Wavesmith - Electric Keys (VST3)",
+  ROOT .. ":Wavesmith - Twin",
+  ROOT .. ":Wavesmith - Twin (2)",
+  ROOT .. ":fakeaudio - Small Synth",
+  ROOT .. ":retro-fake-vst - Retro Thing",
+  ROOT .. ":Unknown - Dash Vendor Synth",
+  ROOT .. ":Unknown - Mystery VST3",
+  ROOT .. ":Unknown - NoVendorSynth",
+}, "\n"), "flat list: favorites first, separator, then Vendor - Plugin, favorites not repeated")
 
 for _, e in ipairs(entries) do
-  if e.name == ROOT .. ":Odd-Name" then
+  if e.label == "Slash-Vendor - Odd-Name" then
     eq(e.path, "Audio/Generators/VST/B6", "original path kept for loading")
   end
 end
 
-local seen = {}
-local unique = true
-for _, name in ipairs(list) do
-  if seen[name:lower()] then unique = false end
-  seen[name:lower()] = true
-end
-check(unique, "all menu entry names unique")
-
-local favs = grouping.build({
+local favorite_only = grouping.menu_entries(grouping.build({
   info("Audio/Generators/VST3/F1", "Vendor: Same", { is_favorite = true }),
   info("Audio/Generators/VST/F2", "Vendor: Same", { is_favorite = true }),
-}).favorites
-eq(favs[1].label, "Same (VST)", "favorite duplicate shows VST")
-eq(favs[2].label, "Same (VST3)", "favorite duplicate shows VST3")
+}), ROOT)
+eq(favorite_only[1].name, ROOT .. ":Vendor - Same (VST)", "favorite duplicate shows VST")
+eq(favorite_only[2].name, ROOT .. ":Vendor - Same (VST3)", "favorite duplicate shows VST3")
 
--- A favorite named like a vendor submenu must not clash with it.
-local clash = grouping.menu_entries(grouping.build({
-  info("Audio/Generators/VST3/G1", "Wavesmith: Wavesmith", { is_favorite = true }),
-}), ROOT, { "Dump Plugin Info" })
-eq(clash[1].name, ROOT .. ":Wavesmith (VST3)", "favorite renamed when it matches a vendor submenu")
+local no_favorites = grouping.menu_entries(grouping.build({
+  info("Audio/Generators/VST/H1", "Vendor: Plain"),
+}), ROOT)
+eq(no_favorites[1].name, ROOT .. ":Vendor - Plain", "no separator without favorites")
 
-eq(#grouping.build({}).sections, 0, "empty list")
+eq(#grouping.menu_entries(grouping.build({}), ROOT), 0, "empty list")
 
 --------------------------------------------------------------------------------
 print("-- main.lua with the fake Renoise API")
@@ -180,14 +173,18 @@ env.fire("tool_finished_loading_observable")
 local elapsed = os.clock() - started
 print(("   500 fake plugins: %d menu entries built in %.3f s"):format(env.entry_count(), elapsed))
 check(elapsed < 1.0, "menu built in less than one second")
-eq(env.entry_count(), 500 + 10 + 1, "500 plugins + 10 favorites + dump entry")
+eq(env.entry_count(), 500 + 1, "500 plugins (favorites listed once) + dump entry")
 local order = env.entry_names()
 eq(order[#order], "--- " .. ROOT .. ":Dump Plugin Info", "dump entry last")
-check(order[1] == ROOT .. ":Fake Synth 0050", "favorites first in the menu")
+for i = 1, 10 do
+  check(env.entries[order[i]] and order[i]:find(" - Fake Synth 0", 1, true) and
+    tonumber(order[i]:match("(%d+)$")) % 50 == 0, "favorites first in the menu " .. i)
+end
+check(order[11]:find("--- ", 1, true) == 1, "separator after favorites")
 
 env.fire("app_new_document_observable")
 env.fire("app_new_document_observable")
-eq(env.entry_count(), 511, "rebuild leaves no duplicates")
+eq(env.entry_count(), 501, "rebuild leaves no duplicates")
 
 env.set_infos(fake_infos(20))
 env.fire("app_new_document_observable")
@@ -198,7 +195,7 @@ eq(order[#order], "--- " .. ROOT .. ":Dump Plugin Info", "dump entry still last"
 -- Loading
 local target
 for _, name in ipairs(order) do
-  if name == ROOT .. ":Fake Vendor 01:Fake Synth 0001" then target = env.entries[name] end
+  if name == ROOT .. ":Fake Vendor 01 - Fake Synth 0001" then target = env.entries[name] end
 end
 target.invoke()
 eq(env.instrument.cleared, 1, "instrument cleared before loading")

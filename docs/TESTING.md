@@ -22,13 +22,13 @@ tools* is on).
 
 ## 3. Menu layout
 
-1. Open **Load Plugin**. Expected order: favorite plugins directly at the
-   top, then one submenu per vendor (uppercase names before lowercase ones),
-   **Unknown** last, then **Dump Plugin Info** after a separator.
+1. Open **Load Plugin**. Expected: favorite plugins first, a separator, then
+   every other plugin as `Vendor - Plugin`, sorted by vendor (uppercase
+   names before lowercase ones), `Unknown - ...` last, then a separator and
+   **Dump Plugin Info**.
 2. Pick a few plugins and compare their vendor with the left pane of the
-   **Plugin** tab. VST and VST3 are mixed under each vendor; a plugin present
-   in both formats shows `(VST)` and `(VST3)`.
-3. Check that the whole first-level list is reachable on screen.
+   **Plugin** tab. A plugin present in VST and VST3 shows `(VST)` and `(VST3)`.
+3. Check that the whole list is reachable on screen (scrolling if needed).
 4. No effect plugin appears anywhere.
 
 ## 4. Loading

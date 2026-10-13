@@ -2,28 +2,28 @@
   grouping.lua
 
   Pure Lua logic (no Renoise API calls) that turns the list returned by
-  renoise.InstrumentPluginProperties.available_plugin_infos into a short
-  menu layout:
+  renoise.InstrumentPluginProperties.available_plugin_infos into a single
+  flat menu:
 
-    Load Plugin > favorite plugins (directly, at the top)
-    Load Plugin > Vendor > Plugin (VST and VST3 mixed)
+    Load Plugin > Vendor - Plugin   (favorites first)
+                  ---------------
+                  Vendor - Plugin   (all other plugins, VST and VST3)
 
   Kept separate from main.lua so it can be tested outside of Renoise.
 
   Vendor detection: Renoise stores each plugin's display name as
   "Vendor: Plugin" (the same string it caches as DisplayName in its plugin
   database). The vendor is the text before the first ": ". Vendors are
-  grouped by their exact name, without merging variants, as Renoise does.
+  used by their exact name, without merging variants, as Renoise does.
 
   Sorting: Renoise sorts by character code, so uppercase names come before
   lowercase ones ("Waves" before "retro-chip-vst"). The same order is used
-  here. Plugins without a vendor go to a final "Unknown" section.
+  here. Plugins without a vendor are listed as "Unknown", last.
 ]]
 
 local M = {}
 
 M.UNKNOWN_VENDOR = "Unknown"
-
 
 -- Vendor names that Renoise uses when a plugin reports no vendor.
 local UNKNOWN_VENDOR_NAMES = {
@@ -136,7 +136,7 @@ local function make_labels_unique(items)
 end
 
 --[[
-  Build the menu layout from a list of plugin infos.
+  Build the layout from a list of plugin infos.
 
   Returns a table:
     {
@@ -147,10 +147,10 @@ end
       skipped = { { info = info, reason = "..." }, ... },
       plugin_count = <number of VST/VST3 instruments listed>,
     }
-  Each item is { label = <menu label>, path = <original path>,
-  format = "VST" | "VST3", vendor = <raw vendor>, name = <raw name> }.
-  When one section holds the same plugin name twice (typically VST and
-  VST3), the format is added to the label.
+  Each item is { label = <plugin label>, section = <vendor label>,
+  path = <original path>, format = "VST" | "VST3", favorite = <boolean>,
+  name = <raw name> }. Favorites are listed in both favorites and their
+  vendor section; menu_entries shows them only once.
 ]]
 function M.build(infos)
   local result = { favorites = {}, sections = {}, skipped = {}, plugin_count = 0 }
@@ -183,25 +183,28 @@ function M.build(infos)
         end
       end
 
+      local favorite = M.truthy(info.is_favorite)
       section.items[#section.items + 1] = {
         label = M.sanitize(plugin_name),
+        section = section.name,
         path = info.path,
         format = format,
-        vendor = vendor,
+        favorite = favorite,
         name = tostring(info.name or ""),
       }
       result.plugin_count = result.plugin_count + 1
 
-      if M.truthy(info.is_favorite) then
+      if favorite then
         local favorite_label = info.favorite_name
         if type(favorite_label) ~= "string" or trim(favorite_label) == "" then
           favorite_label = plugin_name
         end
         result.favorites[#result.favorites + 1] = {
           label = M.sanitize(favorite_label),
+          section = section.name,
           path = info.path,
           format = format,
-          vendor = vendor,
+          favorite = true,
           name = tostring(info.name or ""),
         }
       end
@@ -215,57 +218,65 @@ function M.build(infos)
     result.sections[#result.sections + 1] = unknown
   end
 
-  table.sort(result.favorites, compare_items)
-  make_labels_unique(result.favorites)
   for _, section in ipairs(result.sections) do
     table.sort(section.items, compare_items)
-    make_labels_unique(section.items)
   end
+  local function display(item)
+    return item.section .. " - " .. item.label
+  end
+  table.sort(result.favorites, function(a, b)
+    if display(a) ~= display(b) then
+      return display(a) < display(b)
+    end
+    return compare_items(a, b)
+  end)
 
   return result
 end
 
 --[[
-  Turn a layout into an ordered list of menu entries:
-    { { name = "<root>:<label>" or "<root>:<vendor>:<label>", path = "...",
-        label = "..." }, ... }
-  Favorites come first, directly under the root. Full names are kept unique
-  ignoring case, and a favorite never takes the name of a vendor submenu
-  or of one of the tool's own entries.
+  Turn a layout into the ordered list of menu entries, all directly under
+  the root:
+    { { name = "<root>:Vendor - Plugin", path = "...", label = "..." }, ... }
+  Favorites come first. The first entry after them carries a separator
+  ("--- " prefix). Labels are kept unique ignoring case; a plugin present
+  in VST and VST3 under the same label shows its format.
 ]]
 function M.menu_entries(layout, root, reserved_names)
-  local entries = {}
-  local used = {}
-
-  for _, name in ipairs(reserved_names or {}) do
-    used[(root .. ":" .. name):lower()] = true
-  end
-  for _, section in ipairs(layout.sections) do
-    used[(root .. ":" .. section.name):lower()] = true
-  end
-
-  local function add(prefix, item)
-    local name = prefix .. ":" .. item.label
-    if used[name:lower()] then
-      name = prefix .. ":" .. item.label .. " (" .. item.format .. ")"
-    end
-    local n = 1
-    local base = name
-    while used[name:lower()] do
-      n = n + 1
-      name = base .. " (" .. n .. ")"
-    end
-    used[name:lower()] = true
-    entries[#entries + 1] = { name = name, path = item.path, label = item.label }
-  end
-
+  local flat = {}
   for _, item in ipairs(layout.favorites) do
-    add(root, item)
+    flat[#flat + 1] = { label = item.section .. " - " .. item.label, format = item.format, path = item.path }
   end
+  local favorite_count = #flat
   for _, section in ipairs(layout.sections) do
     for _, item in ipairs(section.items) do
-      add(root .. ":" .. section.name, item)
+      if not item.favorite then
+        flat[#flat + 1] = { label = item.section .. " - " .. item.label, format = item.format, path = item.path }
+      end
     end
+  end
+
+  make_labels_unique(flat)
+
+  local used = {}
+  for _, name in ipairs(reserved_names or {}) do
+    used[name:lower()] = true
+  end
+
+  local entries = {}
+  for index, item in ipairs(flat) do
+    local label = item.label
+    local n = 1
+    while used[label:lower()] do
+      n = n + 1
+      label = item.label .. " (" .. n .. ")"
+    end
+    used[label:lower()] = true
+    local name = root .. ":" .. label
+    if index == favorite_count + 1 and favorite_count > 0 then
+      name = "--- " .. name
+    end
+    entries[#entries + 1] = { name = name, path = item.path, label = label }
   end
   return entries
 end

@@ -1,8 +1,8 @@
 # renoise-plugin-selector
 
 A Renoise tool that adds a **Load Plugin** menu to the Instrument Box context
-menu. It lists your VST3 and VST2 instrument plugins, favorites first and then
-by vendor, and loads the chosen plugin into the selected instrument slot in
+menu. It lists all your VST3 and VST2 instrument plugins in a single list,
+favorites first, and loads the chosen plugin into the selected instrument slot in
 one click.
 
 <!-- ![The Load Plugin menu in the Instrument Box context menu](docs/screenshots/context-menu.png) -->
@@ -50,22 +50,28 @@ and open **Load Plugin**:
 
 ```
 Load Plugin
-  Favorite plugin
-  Favorite plugin
-  Vendor   > Plugin
-  Vendor   > Plugin
+  Vendor - Favorite plugin
+  Vendor - Favorite plugin
+  ------------------------
+  Vendor - Plugin
+  Vendor - Plugin
   ...
-  Unknown  > Plugin
+  Unknown - Plugin
+  ------------------------
   Dump Plugin Info
 ```
 
-- Favorite plugins appear directly at the top, so they load with a single
-  click. They are also listed under their vendor.
-- VST and VST3 plugins are mixed under each vendor. When a plugin exists in
-  both formats, the format is shown: `Plugin (VST)`, `Plugin (VST3)`.
-- Vendors are grouped by their exact name, as Renoise shows them, sorted by
-  character code (uppercase before lowercase), like the Plugin tab.
-- Plugins without a vendor are listed under **Unknown**, last.
+- Everything is in the first submenu: one click on **Load Plugin**, one
+  click on the plugin.
+- Favorite plugins come first, then a separator, then all other plugins.
+  Favorites are not repeated in the main list.
+- Each entry reads `Vendor - Plugin`. VST and VST3 plugins are mixed. When a
+  plugin exists in both formats, the format is shown: `Vendor - Plugin (VST)`,
+  `Vendor - Plugin (VST3)`.
+- Entries are sorted by vendor, then plugin name, by character code
+  (uppercase before lowercase), like the Plugin tab. Vendors are used by
+  their exact name, as Renoise shows them.
+- Plugins without a vendor are listed as `Unknown - Plugin`, last.
 - Bridged plugins are listed and can be loaded.
 
 **Loading replaces the selected instrument.** The slot is cleared and the
@@ -82,8 +88,8 @@ If Renoise cannot load the plugin, an error message is shown.
   menu, because `:` separates menu levels. The real plugin path is unchanged.
   Two plugins with the same name and format under one vendor get a ` (2)`
   suffix.
-- **Long first level.** With many vendors, the first submenu is long (one
-  line per vendor).
+- **Long list.** All plugins are in one submenu, so with hundreds of plugins
+  the list is long.
 - **Favorites** come from the API's `is_favorite` field, labelled with
   `favorite_name`.
 - **Menu updates.** The menu is rebuilt when the tool loads and whenever a
