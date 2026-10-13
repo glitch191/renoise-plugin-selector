@@ -22,12 +22,13 @@ tools* is on).
 
 ## 3. Menu layout
 
-1. Open **Load Plugin**. Expected order: **Favorites** (only when there are
-   favorites), **VST3**, **VST**, then **Dump Plugin Info** after a separator.
-2. Open **VST3** and compare it with the left pane of the **Plugin** tab:
-   same vendors, same order (uppercase names before lowercase ones), same
-   plugins under each vendor.
-3. Pick a few plugins in **VST** and check the vendor and position the same way.
+1. Open **Load Plugin**. Expected order: favorite plugins directly at the
+   top, then one submenu per vendor (uppercase names before lowercase ones),
+   **Unknown** last, then **Dump Plugin Info** after a separator.
+2. Pick a few plugins and compare their vendor with the left pane of the
+   **Plugin** tab. VST and VST3 are mixed under each vendor; a plugin present
+   in both formats shows `(VST)` and `(VST3)`.
+3. Check that the whole first-level list is reachable on screen.
 4. No effect plugin appears anywhere.
 
 ## 4. Loading
@@ -43,7 +44,7 @@ tools* is on).
 
 1. In the Plugin tab, mark one instrument as favorite.
 2. Create a new song (**File > New Song**). Right-click the Instrument Box:
-   the plugin is now under **Favorites**.
+   the plugin now appears at the top of **Load Plugin**.
 3. Remove the favorite, create a new song again: it is gone.
 4. Open the menu several times after several new songs: no duplicated
    entries.

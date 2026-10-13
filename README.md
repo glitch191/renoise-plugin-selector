@@ -1,9 +1,9 @@
 # renoise-plugin-selector
 
 A Renoise tool that adds a **Load Plugin** menu to the Instrument Box context
-menu. It lists your VST3 and VST2 instrument plugins the same way as the left
-pane of Renoise's Plugin tab, and loads the chosen plugin into the selected
-instrument slot in one click.
+menu. It lists your VST3 and VST2 instrument plugins, favorites first and then
+by vendor, and loads the chosen plugin into the selected instrument slot in
+one click.
 
 <!-- ![The Load Plugin menu in the Instrument Box context menu](docs/screenshots/context-menu.png) -->
 <!-- *The Load Plugin menu, opened with a right-click in the Instrument Box.* -->
@@ -50,12 +50,19 @@ and open **Load Plugin**:
 
 ```
 Load Plugin
-  Favorites      > Plugin
-  VST3           > Vendor > Plugin
-  VST            > Vendor > Plugin
+  Favorite plugin
+  Favorite plugin
+  Vendor   > Plugin
+  Vendor   > Plugin
+  ...
+  Unknown  > Plugin
   Dump Plugin Info
 ```
 
+- Favorite plugins appear directly at the top, so they load with a single
+  click. They are also listed under their vendor.
+- VST and VST3 plugins are mixed under each vendor. When a plugin exists in
+  both formats, the format is shown: `Plugin (VST)`, `Plugin (VST3)`.
 - Vendors are grouped by their exact name, as Renoise shows them, sorted by
   character code (uppercase before lowercase), like the Plugin tab.
 - Plugins without a vendor are listed under **Unknown**, last.
@@ -73,7 +80,10 @@ If Renoise cannot load the plugin, an error message is shown.
   file.
 - **Name cleanup.** Colons and slashes in names are replaced by `-` in the
   menu, because `:` separates menu levels. The real plugin path is unchanged.
-  Two plugins with the same name under one vendor get a ` (2)` suffix.
+  Two plugins with the same name and format under one vendor get a ` (2)`
+  suffix.
+- **Long first level.** With many vendors, the first submenu is long (one
+  line per vendor).
 - **Favorites** come from the API's `is_favorite` field, labelled with
   `favorite_name`.
 - **Menu updates.** The menu is rebuilt when the tool loads and whenever a

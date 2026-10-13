@@ -2,15 +2,16 @@
   renoise-plugin-selector
 
   Adds an "Instrument Box:Load Plugin" context menu that lists the
-  installed VST3 and VST2 instrument plugins like the left pane of
-  Renoise's Plugin tab (Favorites, then format, then vendor), and loads
-  the chosen plugin into the selected instrument slot.
+  installed VST3 and VST2 instrument plugins (favorites first, then one
+  submenu per vendor), and loads the chosen plugin into the selected
+  instrument slot.
 ]]
 
 local grouping = require("grouping")
 
 local MENU_ROOT = "Instrument Box:Load Plugin"
-local DUMP_ENTRY = "--- " .. MENU_ROOT .. ":Dump Plugin Info"
+local DUMP_LABEL = "Dump Plugin Info"
+local DUMP_ENTRY = "--- " .. MENU_ROOT .. ":" .. DUMP_LABEL
 local DUMP_FILE_NAME = "plugin-info-dump.txt"
 
 -- Names of the menu entries added by the last build, so that a rebuild
@@ -85,7 +86,7 @@ local function write_dump()
   end
 
   local layout = grouping.build(infos)
-  local entries = grouping.menu_entries(layout, MENU_ROOT)
+  local entries = grouping.menu_entries(layout, MENU_ROOT, { DUMP_LABEL })
 
   local lines = {}
   local function add(line)
@@ -121,13 +122,10 @@ local function write_dump()
       add(("  %s  [%s]  %s"):format(item.label, item.format, item.path))
     end
   end
-  for _, format in ipairs(layout.formats) do
-    add(format.name)
-    for _, section in ipairs(format.sections) do
-      add("  " .. section.name)
-      for _, item in ipairs(section.items) do
-        add(("    %s  %s"):format(item.label, item.path))
-      end
+  for _, section in ipairs(layout.sections) do
+    add(section.name)
+    for _, item in ipairs(section.items) do
+      add(("  %s  [%s]  %s"):format(item.label, item.format, item.path))
     end
   end
   add("")
@@ -189,7 +187,7 @@ local function build_menu()
   end
 
   local layout = grouping.build(infos)
-  local entries = grouping.menu_entries(layout, MENU_ROOT)
+  local entries = grouping.menu_entries(layout, MENU_ROOT, { DUMP_LABEL })
 
   remove_menu_entries()
   for _, entry in ipairs(entries) do
