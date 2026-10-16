@@ -1,12 +1,12 @@
 # renoise-plugin-selector
 
-A Renoise tool that adds a **Load Plugin** menu to the Instrument Box context
+A Renoise tool that adds a **Load VST** menu to the Instrument Box context
 menu. It lists all your VST3 and VST2 instrument plugins in a single list,
 as `Vendor - Plugin`, and loads the chosen plugin into the selected
 instrument slot in one click.
 
-<!-- ![The Load Plugin menu in the Instrument Box context menu](docs/screenshots/context-menu.png) -->
-<!-- *The Load Plugin menu, opened with a right-click in the Instrument Box.* -->
+<!-- ![The Load VST menu in the Instrument Box context menu](docs/screenshots/context-menu.png) -->
+<!-- *The Load VST menu, opened with a right-click in the Instrument Box.* -->
 
 ## Compatibility
 
@@ -46,10 +46,10 @@ The hash must match the one in `renoise-plugin-selector-1.0.xrnx.sha256`.
 ## Usage
 
 Right-click an instrument slot in the Instrument Box (top right of Renoise)
-and open **Load Plugin**:
+and open **Load VST**:
 
 ```
-Load Plugin
+Load VST
   Vendor - Plugin
   Vendor - Plugin
   ...
@@ -58,7 +58,7 @@ Load Plugin
   Dump Plugin Info
 ```
 
-- Everything is in the first submenu: one click on **Load Plugin**, one
+- Everything is in the first submenu: one click on **Load VST**, one
   click on the plugin.
 - Favorites have no section of their own: Renoise already lists them in its
   **Favorite Plugin Instruments** item of the same context menu. They appear
@@ -96,7 +96,7 @@ error message is shown.
 
 ## Troubleshooting
 
-Choose **Load Plugin > Dump Plugin Info**. It writes `plugin-info-dump.txt`
+Choose **Load VST > Dump Plugin Info**. It writes `plugin-info-dump.txt`
 in the tool folder with the raw plugin list from Renoise (path, name, short
 name, favorite name, favorite and bridged flags) and the computed menu
 layout. Errors are also shown in **Tools > Scripting Terminal & Editor**.

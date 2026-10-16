@@ -6,6 +6,6 @@
   <Author>glitch191</Author>
   <Name>renoise-plugin-selector</Name>
   <Category>Instruments</Category>
-  <Description>Adds a Load Plugin menu to the Instrument Box context menu, listing all VST3 and VST2 instrument plugins as Vendor - Plugin.</Description>
+  <Description>Adds a Load VST menu to the Instrument Box context menu, listing all VST3 and VST2 instrument plugins as Vendor - Plugin.</Description>
   <Platform>Windows</Platform>
 </RenoiseScriptingTool>

@@ -5,7 +5,7 @@
   renoise.InstrumentPluginProperties.available_plugin_infos into a single
   flat menu:
 
-    Load Plugin > Vendor - Plugin   (all plugins, VST and VST3)
+    Load VST > Vendor - Plugin   (all plugins, VST and VST3)
 
   Favorites are not listed separately: Renoise already offers them in its
   own "Favorite Plugin Instruments" menu.

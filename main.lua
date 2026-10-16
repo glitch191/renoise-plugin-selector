@@ -1,14 +1,14 @@
 --[[
   renoise-plugin-selector
 
-  Adds an "Instrument Box:Load Plugin" context menu that lists the
+  Adds an "Instrument Box:Load VST" context menu that lists the
   installed VST3 and VST2 instrument plugins in one list ("Vendor - Plugin"),
   and loads the chosen plugin into the selected instrument slot.
 ]]
 
 local grouping = require("grouping")
 
-local MENU_ROOT = "Instrument Box:Load Plugin"
+local MENU_ROOT = "Instrument Box:Load VST"
 local DUMP_LABEL = "Dump Plugin Info"
 local DUMP_ENTRY = "--- " .. MENU_ROOT .. ":" .. DUMP_LABEL
 local DUMP_FILE_NAME = "plugin-info-dump.txt"
@@ -48,7 +48,7 @@ end
 local function load_plugin(path, label)
   local song = renoise.song()
   if not song then
-    renoise.app():show_error("Load Plugin: no song is loaded.")
+    renoise.app():show_error("Load VST: no song is loaded.")
     return
   end
 
@@ -60,10 +60,10 @@ local function load_plugin(path, label)
 
   if not ok then
     renoise.app():show_error(
-      ("Load Plugin: could not load '%s'.\n\n%s"):format(label, tostring(result)))
+      ("Load VST: could not load '%s'.\n\n%s"):format(label, tostring(result)))
   elseif not result then
     renoise.app():show_error(
-      ("Load Plugin: Renoise could not load '%s'.\n\nPlugin path: %s\n\n" ..
+      ("Load VST: Renoise could not load '%s'.\n\nPlugin path: %s\n\n" ..
        "The plugin may have been removed, or failed to initialize. " ..
        "Try rescanning plugins in Renoise's preferences."):format(label, path))
   else
@@ -77,7 +77,7 @@ local function load_plugin(path, label)
     end)
     if not opened then
       renoise.app():show_warning(
-        ("Load Plugin: '%s' was loaded, but its editor could not be opened.\n\n%s"):format(
+        ("Load VST: '%s' was loaded, but its editor could not be opened.\n\n%s"):format(
           label, tostring(open_err)))
     end
   end
@@ -214,7 +214,7 @@ local function rebuild_menu()
   if not ok then
     -- Keep the diagnostic entry reachable even when the build fails.
     pcall(add_entry, DUMP_ENTRY, write_dump)
-    renoise.app():show_warning("Load Plugin: could not build the plugin menu.\n\n" .. tostring(err))
+    renoise.app():show_warning("Load VST: could not build the plugin menu.\n\n" .. tostring(err))
   end
 end
 

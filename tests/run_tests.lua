@@ -52,7 +52,7 @@ local function index_of(list, value)
   return nil
 end
 
-local ROOT = "Instrument Box:Load Plugin"
+local ROOT = "Instrument Box:Load VST"
 
 --------------------------------------------------------------------------------
 print("-- sanitize, split_vendor, format_of")

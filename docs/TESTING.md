@@ -18,11 +18,11 @@ tools* is on).
 1. Open **Tools > Scripting Terminal & Editor**: no error from
    `RenoisePluginSelector` in the terminal.
 2. Right-click an instrument slot in the Instrument Box (top right).
-   A **Load Plugin** submenu is shown.
+   A **Load VST** submenu is shown.
 
 ## 3. Menu layout
 
-1. Open **Load Plugin**. Expected: every plugin as `Vendor - Plugin`, sorted by vendor (uppercase
+1. Open **Load VST**. Expected: every plugin as `Vendor - Plugin`, sorted by vendor (uppercase
    names before lowercase ones), `Unknown - ...` last, then a separator and
    **Dump Plugin Info**.
 2. Pick a few plugins and compare their vendor with the left pane of the
@@ -47,7 +47,7 @@ tools* is on).
 
 ## 6. Diagnostic
 
-1. Choose **Load Plugin > Dump Plugin Info**. A message gives the file path.
+1. Choose **Load VST > Dump Plugin Info**. A message gives the file path.
 2. Open `plugin-info-dump.txt` in the tool folder and check that each
    plugin's `name` looks like `Vendor: Plugin`, and that `path` contains
    `/VST3/` or `/VST/`. Send this file back if anything looks wrong.
