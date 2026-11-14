@@ -22,8 +22,9 @@ tools* is on).
 
 ## 3. Menu layout
 
-1. Open **Load VST**. Expected: every plugin as `Vendor - Plugin`, sorted by vendor (uppercase
-   names before lowercase ones), `Unknown - ...` last, then a separator and
+1. Open **Load VST**. Expected: every plugin as `Vendor - Plugin`, sorted
+   alphabetically by vendor then name, ignoring letter case (`microKORG`
+   between `M1` and `MS-20`), `Unknown - ...` last, then a separator and
    **Dump Plugin Info**.
 2. Pick a few plugins and compare their vendor with the left pane of the
    **Plugin** tab. A plugin present in VST and VST3 shows `(VST)` and `(VST3)`.

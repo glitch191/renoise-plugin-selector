@@ -105,8 +105,8 @@ eq(#layout.skipped, 1, "AU plugin skipped")
 local section_names = {}
 for _, s in ipairs(layout.sections) do section_names[#section_names + 1] = s.name end
 eq(table.concat(section_names, "|"),
-  "Bridgeco|Dreamfake Co., Ltd.|FakeAudio|Slash-Vendor|Wavesmith|fakeaudio|retro-fake-vst|Unknown",
-  "vendors exact, character-code order, Unknown last")
+  "Bridgeco|Dreamfake Co., Ltd.|FakeAudio|fakeaudio|retro-fake-vst|Slash-Vendor|Wavesmith|Unknown",
+  "vendors exact (no merge), alphabetical ignoring case, Unknown last")
 eq(#layout.sections[#layout.sections].items, 3, "'-', 'Unknown Vendor' and missing vendor go to Unknown")
 
 local entries = grouping.menu_entries(layout, ROOT, { "Dump Plugin Info" })
@@ -115,14 +115,14 @@ eq(table.concat(list, "\n"), table.concat({
   ROOT .. ":Bridgeco - Old Synth",
   ROOT .. ":Dreamfake Co., Ltd. - Voice Studio",
   ROOT .. ":FakeAudio - Big Synth",
+  ROOT .. ":fakeaudio - Small Synth",
+  ROOT .. ":retro-fake-vst - Retro Thing",
   ROOT .. ":Slash-Vendor - Odd-Name",
   ROOT .. ":Wavesmith - Codex Pad",
   ROOT .. ":Wavesmith - Electric Keys (VST)",
   ROOT .. ":Wavesmith - Electric Keys (VST3)",
   ROOT .. ":Wavesmith - Twin",
   ROOT .. ":Wavesmith - Twin (2)",
-  ROOT .. ":fakeaudio - Small Synth",
-  ROOT .. ":retro-fake-vst - Retro Thing",
   ROOT .. ":Unknown - Dash Vendor Synth",
   ROOT .. ":Unknown - Mystery VST3",
   ROOT .. ":Unknown - NoVendorSynth",
@@ -133,6 +133,17 @@ for _, e in ipairs(entries) do
     eq(e.path, "Audio/Generators/VST/B6", "original path kept for loading")
   end
 end
+
+local mixed_case = grouping.menu_entries(grouping.build({
+  info("Audio/Generators/VST/K1", "FakeCorp: WAVEBOX"),
+  info("Audio/Generators/VST/K2", "FakeCorp: microBOX"),
+  info("Audio/Generators/VST/K3", "FakeCorp: M1"),
+  info("Audio/Generators/VST/K4", "FakeCorp: MS-20"),
+}), ROOT)
+eq(table.concat(names(mixed_case), "|"), table.concat({
+  ROOT .. ":FakeCorp - M1", ROOT .. ":FakeCorp - microBOX",
+  ROOT .. ":FakeCorp - MS-20", ROOT .. ":FakeCorp - WAVEBOX",
+}, "|"), "plugin names sorted ignoring case")
 
 local reserved = grouping.menu_entries(grouping.build({
   info("Audio/Generators/VST/H1", "Dump Plugin: Info"),

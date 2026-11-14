@@ -66,9 +66,10 @@ Load VST
 - Each entry reads `Vendor - Plugin`. VST and VST3 plugins are mixed. When a
   plugin exists in both formats, the format is shown: `Vendor - Plugin (VST)`,
   `Vendor - Plugin (VST3)`.
-- Entries are sorted by vendor, then plugin name, by character code
-  (uppercase before lowercase), like the Plugin tab. Vendors are used by
-  their exact name, as Renoise shows them.
+- Entries are sorted alphabetically by vendor, then plugin name, ignoring
+  letter case (`microKORG` comes between `M1` and `MS-20`). This differs from
+  the Plugin tab, which puts uppercase names before lowercase ones. Vendors
+  are used by their exact name, as Renoise shows them.
 - Plugins without a vendor are listed as `Unknown - Plugin`, last.
 - Bridged plugins are listed and can be loaded.
 

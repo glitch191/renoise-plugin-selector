@@ -17,9 +17,9 @@
   database). The vendor is the text before the first ": ". Vendors are
   used by their exact name, without merging variants, as Renoise does.
 
-  Sorting: Renoise sorts by character code, so uppercase names come before
-  lowercase ones ("Waves" before "retro-chip-vst"). The same order is used
-  here. Plugins without a vendor are listed as "Unknown", last.
+  Sorting: alphabetical, ignoring letter case ("microKORG" between "M1" and
+  "MS-20"). Names that differ only by case keep a stable order. Plugins
+  without a vendor are listed as "Unknown", last.
 ]]
 
 local M = {}
@@ -91,9 +91,18 @@ function M.is_unknown_vendor(vendor)
   return UNKNOWN_VENDOR_NAMES[trim(vendor or ""):lower()] == true
 end
 
+-- Alphabetical order ignoring case, then exact order as a tie-break.
+local function less_ignoring_case(x, y)
+  local lx, ly = x:lower(), y:lower()
+  if lx ~= ly then
+    return lx < ly
+  end
+  return x < y
+end
+
 local function compare_items(a, b)
   if a.label ~= b.label then
-    return a.label < b.label
+    return less_ignoring_case(a.label, b.label)
   end
   if a.format ~= b.format then
     return a.format < b.format
@@ -187,7 +196,7 @@ function M.build(infos)
   end
 
   table.sort(result.sections, function(a, b)
-    return a.name < b.name
+    return less_ignoring_case(a.name, b.name)
   end)
   if unknown then
     result.sections[#result.sections + 1] = unknown
