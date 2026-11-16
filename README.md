@@ -5,7 +5,7 @@ menu. It lists all your VST3 and VST2 instrument plugins in a single list,
 as `Vendor - Plugin`, and loads the chosen plugin into the selected
 instrument slot in one click.
 
-![The Load VST menu in the Instrument Box context menu](docs/screenshots/context-menu.png)
+![The Load VST menu in the Instrument Box context menu](docs/screenshots/load-vst-menu.png)
 *The Load VST menu, opened with a right-click in the Instrument Box.*
 
 ## Compatibility
